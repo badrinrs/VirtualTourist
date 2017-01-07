@@ -113,6 +113,7 @@ class PhotoMapViewController: UIViewController, MKMapViewDelegate, UICollectionV
                 guard let photos = searches.photos else {
                     self.showAlert(title: "Error", message: "Error Getting Photos. Please try again later.")
                     self.noCollectionsLabel.text = "No Photos Found! Please tap on New Collection Button below."
+                    SwiftSpinner.hide()
                     return
                 }
                 if((photos.count) > 0) {
