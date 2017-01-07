@@ -237,6 +237,8 @@ class PhotoMapViewController: UIViewController, MKMapViewDelegate, UICollectionV
             }
         }
         isCancelButtonAvailable = false
+        actionBarButton.isEnabled = false
+        trashBarButton.isEnabled = false
         
     }
     
@@ -250,8 +252,25 @@ class PhotoMapViewController: UIViewController, MKMapViewDelegate, UICollectionV
         
         let activityViewController = UIActivityViewController(activityItems: images, applicationActivities: nil)
         activityViewController.popoverPresentationController?.sourceView = self.view
+        self.present(activityViewController, animated: true) {
+            for cell in self.selectedCells {
+                cell.isSelected = false
+                cell.backgroundColor = UIColor.clear
+            }
+            for barButtonItem in self.navigationItem.rightBarButtonItems! {
+                if(barButtonItem.title == "Cancel") {
+                    let index = self.navigationItem.rightBarButtonItems?.index(of: barButtonItem)
+                    self.navigationItem.rightBarButtonItems?.remove(at: index!)
+                }
+            }
+            self.selectedCells.removeAll()
+            self.selectedCellIndexes.removeAll()
+            self.isCancelButtonAvailable = false
+            self.trashBarButton.isEnabled = false
+            self.actionBarButton.isEnabled = false
+
+        }
         
-        self.present(activityViewController, animated: true, completion: nil)
     }
     
     func handleLongPress(gestureRecognizer: UIGestureRecognizer) {
