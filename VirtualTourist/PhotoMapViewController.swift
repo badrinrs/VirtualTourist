@@ -111,16 +111,22 @@ class PhotoMapViewController: UIViewController, MKMapViewDelegate, UICollectionV
             if(status=="Success") {
                 searches = flickrSearchResults!
                 guard let photos = searches.photos else {
+                    SwiftSpinner.hide()
                     self.showAlert(title: "Error", message: "Error Getting Photos. Please try again later.")
                     self.noCollectionsLabel.text = "No Photos Found! Please tap on New Collection Button below."
-                    SwiftSpinner.hide()
                     return
                 }
+                print("Photos Count: \(photos.count)")
                 if((photos.count) > 0) {
                     DispatchQueue.main.async {
                         self.noCollectionsLabel.text = ""
                         self.noCollectionsLabel.isHidden = true
                     }
+                } else {
+                    SwiftSpinner.hide()
+                    self.showAlert(title: "Error", message: "Error Getting Photos. Please try again later.")
+                    self.noCollectionsLabel.text = "No Photos Found! Please tap on New Collection Button below."
+                    return
                 }
                 var flickrPhotos = [FlickrPhoto]()
                 let photosCount = searches.photos?.count
