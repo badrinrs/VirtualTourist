@@ -116,7 +116,6 @@ class PhotoMapViewController: UIViewController, MKMapViewDelegate, UICollectionV
                     self.noCollectionsLabel.text = "No Photos Found! Please tap on New Collection Button below."
                     return
                 }
-                print("Photos Count: \(photos.count)")
                 if((photos.count) > 0) {
                     DispatchQueue.main.async {
                         self.noCollectionsLabel.text = ""
