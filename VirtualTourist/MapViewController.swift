@@ -24,15 +24,12 @@ class MapViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view, typically from a nib.
+        
         locationManager.delegate = self
         touristMap.delegate = self
         locationManager.requestAlwaysAuthorization()
         locationManager.requestWhenInUseAuthorization()
-        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
-                return
-        }
-        
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
         context = appDelegate.persistentContainer.viewContext
         
         if CLLocationManager.locationServicesEnabled() {
@@ -100,7 +97,6 @@ class MapViewController: UIViewController {
                         print("Could not fetch. \(error), \(error.userInfo)")
                     }
                     self.pins.append(pin)
-                    
                 }
                 else {
                     annotation = PinAnnotation(title: "Unknown Place", coordinate: newCoordinates)
@@ -287,7 +283,6 @@ extension MapViewController: CLLocationManagerDelegate, MKMapViewDelegate {
             let pinAnnotation = PinAnnotation(title: pin.title!, coordinate: CLLocationCoordinate2D(latitude: pin.latitude, longitude: pin.longitude))
             pinAnnotations.append(pinAnnotation)
         }
-        
         return pinAnnotations
     }
 }

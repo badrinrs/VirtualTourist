@@ -62,8 +62,6 @@ class PhotoMapViewController: UIViewController, UIGestureRecognizerDelegate {
         collectionView.allowsMultipleSelection = true
         collectionView.allowsSelection = true
         
-        
-        
         longPressGesture = UILongPressGestureRecognizer(target: self, action: #selector(PhotoMapViewController.handleLongPress(gestureRecognizer:)))
         longPressGesture.minimumPressDuration = 0.5
         longPressGesture.delegate = self
@@ -78,7 +76,6 @@ class PhotoMapViewController: UIViewController, UIGestureRecognizerDelegate {
             NSFetchRequest<NSManagedObject>(entityName: "Photo")
         fetchRequest.predicate = NSPredicate(format: "pin == %@", pin)
         guard let photoList = try? context.fetch(fetchRequest) as! [Photo] else {
-//            noCollectionsLabel.text = "No Photos Found! Please tap on New Collection Button below."
             return
         }
         photos = photoList
@@ -388,10 +385,6 @@ extension PhotoMapViewController: UICollectionViewDelegate, UICollectionViewData
             noCollectionsLabel.text = "No Photos Found! Please tap on New Collection Button below."
         }
         return count
-    }
-    
-    func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return 1
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
