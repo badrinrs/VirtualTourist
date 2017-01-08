@@ -194,10 +194,10 @@
             </objects>
             <point key="canvasLocation" x="1800.8" y="80.50974512743629"/>
         </scene>
-        <!--Photo View Controller-->
+        <!--Photo Detail View Controller-->
         <scene sceneID="Z3D-5Z-HEv">
             <objects>
-                <viewController storyboardIdentifier="imageVC" id="5Ow-YZ-qgU" customClass="PhotoViewController" customModule="VirtualTourist" customModuleProvider="target" sceneMemberID="viewController">
+                <viewController storyboardIdentifier="imageVC" id="5Ow-YZ-qgU" customClass="PhotoDetailViewController" customModule="VirtualTourist" customModuleProvider="target" sceneMemberID="viewController">
                     <layoutGuides>
                         <viewControllerLayoutGuide type="top" id="rX8-FE-oPH"/>
                         <viewControllerLayoutGuide type="bottom" id="hgv-Zo-sNA"/>
