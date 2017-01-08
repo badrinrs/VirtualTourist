@@ -8,7 +8,7 @@
 
 import Foundation
 
-class FlickrSearchResults {
+struct FlickrSearchResults {
     var photos: [FlickrPhoto]?
     
     init(photos: [FlickrPhoto]) {
