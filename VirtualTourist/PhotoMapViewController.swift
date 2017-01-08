@@ -84,10 +84,13 @@ class PhotoMapViewController: UIViewController, MKMapViewDelegate, UICollectionV
             return
         }
         photos = photoList
-        let flickrPhotos = createFlickrPhotos(photos: photos)
-        searches = FlickrSearchResults(photos: flickrPhotos)
-        collectionView.reloadData()
-
+        if(photos.count > 0) {
+            let flickrPhotos = createFlickrPhotos(photos: photos)
+            searches = FlickrSearchResults(photos: flickrPhotos)
+            collectionView.reloadData()
+        } else {
+            loadPhotos()
+        }
         
     }
     
@@ -348,6 +351,79 @@ class PhotoMapViewController: UIViewController, MKMapViewDelegate, UICollectionV
         }
         
         return flickrPhotos
+    }
+    
+    func loadPhotos() {
+        newCollectionButton.isEnabled = false
+        isCollectionButtonTapped = true
+        
+        var searches = FlickrSearchResults()
+        self.collectionView.reloadData()
+        for photo in self.photos {
+            context.delete(photo)
+            do {
+                try context.save()
+            } catch let error as NSError {
+                print("Could not delete. \(error), \(error.userInfo)")
+            }
+        }
+        flickr.getPhotos(coordinate: annotation.coordinate) { (flickrSearchResults, status) in
+            if(status=="Success") {
+                searches = flickrSearchResults!
+                guard let photos = searches.photos else {
+                    self.showAlert(title: "Error", message: "Error Getting Photos. Please try again later.")
+                    self.noCollectionsLabel.text = "No Photos Found! Please tap on New Collection Button below."
+                    return
+                }
+                if((photos.count) > 0) {
+                    DispatchQueue.main.async {
+                        self.noCollectionsLabel.text = ""
+                        self.noCollectionsLabel.isHidden = true
+                    }
+                } else {
+                    self.showAlert(title: "Error", message: "Error Getting Photos. Please try again later.")
+                    self.noCollectionsLabel.text = "No Photos Found! Please tap on New Collection Button below."
+                    return
+                }
+                var flickrPhotos = [FlickrPhoto]()
+                let photosCount = searches.photos?.count
+                var count = 0
+                for flickrPhoto in photos {
+                    self.flickr.getPhotosFromUrl(flickrPhoto: flickrPhoto, completionHandler: { (dictionary, status) in
+                        count += 1;
+                        if(status=="Success") {
+                            let photo = dictionary?["flickrPhoto"] as! FlickrPhoto
+                            
+                            DispatchQueue.main.async {
+                                flickrPhotos.append(photo)
+                                self.searches = FlickrSearchResults(photos: flickrPhotos)
+                                self.collectionView.reloadData()
+                            }
+                        }
+                        if(count == photosCount) {
+                            for photo in photos {
+                                let corePhoto = Photo(photo: photo, context: self.context)
+                                self.pin.addToPhoto(corePhoto)
+                                self.photos.append(corePhoto)
+                                do {
+                                    try self.context.save()
+                                } catch let error as NSError {
+                                    print("Could not insert. \(error), \(error.userInfo)")
+                                }
+                            }
+                        }
+                    })
+                }
+                DispatchQueue.main.async {
+                    self.collectionView.reloadData()
+                    self.newCollectionButton.isEnabled = true
+                }
+            } else {
+                print(status)
+                self.showAlert(title: "Error", message: "Error Getting Photos. Please try again later.")
+                self.noCollectionsLabel.text = "No Photos Found! Please tap on New Collection Button below."
+            }
+        }
     }
 }
 
