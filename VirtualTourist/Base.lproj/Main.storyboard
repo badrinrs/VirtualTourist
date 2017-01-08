@@ -132,18 +132,26 @@
                                             <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="nLm-gF-TQt">
-                                                    <rect key="frame" x="8" y="8" width="34" height="34"/>
+                                                <imageView userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="placeholder" translatesAutoresizingMaskIntoConstraints="NO" id="nLm-gF-TQt">
+                                                    <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
                                                 </imageView>
+                                                <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" hidesWhenStopped="YES" animating="YES" style="gray" translatesAutoresizingMaskIntoConstraints="NO" id="Hfe-Uo-LJH">
+                                                    <rect key="frame" x="15" y="15" width="20" height="20"/>
+                                                </activityIndicatorView>
                                             </subviews>
                                         </view>
                                         <constraints>
-                                            <constraint firstItem="nLm-gF-TQt" firstAttribute="leading" secondItem="rqb-y0-EUU" secondAttribute="leadingMargin" id="Deg-X8-Zfj"/>
-                                            <constraint firstItem="nLm-gF-TQt" firstAttribute="top" secondItem="rqb-y0-EUU" secondAttribute="topMargin" id="Xnj-D0-pFN"/>
-                                            <constraint firstItem="nLm-gF-TQt" firstAttribute="bottom" secondItem="rqb-y0-EUU" secondAttribute="bottomMargin" id="eaW-kl-9ep"/>
-                                            <constraint firstItem="nLm-gF-TQt" firstAttribute="trailing" secondItem="rqb-y0-EUU" secondAttribute="trailingMargin" id="pJC-nq-niO"/>
+                                            <constraint firstAttribute="bottom" secondItem="nLm-gF-TQt" secondAttribute="bottom" id="Egt-Qn-DZ9"/>
+                                            <constraint firstItem="nLm-gF-TQt" firstAttribute="leading" secondItem="rqb-y0-EUU" secondAttribute="leading" id="GNO-Lz-cFE"/>
+                                            <constraint firstAttribute="trailing" secondItem="nLm-gF-TQt" secondAttribute="trailing" id="JiQ-Le-T1w"/>
+                                            <constraint firstItem="Hfe-Uo-LJH" firstAttribute="top" secondItem="rqb-y0-EUU" secondAttribute="topMargin" constant="7" id="LaM-Um-ra9"/>
+                                            <constraint firstItem="Hfe-Uo-LJH" firstAttribute="leading" secondItem="rqb-y0-EUU" secondAttribute="leadingMargin" constant="7" id="MI4-bE-bkz"/>
+                                            <constraint firstItem="nLm-gF-TQt" firstAttribute="top" secondItem="rqb-y0-EUU" secondAttribute="top" id="aUd-Gj-F5W"/>
+                                            <constraint firstAttribute="trailingMargin" secondItem="Hfe-Uo-LJH" secondAttribute="trailing" constant="7" id="dKa-yy-SNs"/>
+                                            <constraint firstAttribute="bottomMargin" secondItem="Hfe-Uo-LJH" secondAttribute="bottom" constant="7" id="o4C-C9-ZM2"/>
                                         </constraints>
                                         <connections>
+                                            <outlet property="activityIndicator" destination="Hfe-Uo-LJH" id="I9e-hT-dCL"/>
                                             <outlet property="collectionImage" destination="nLm-gF-TQt" id="0tn-ug-hOM"/>
                                         </connections>
                                     </collectionViewCell>
@@ -238,4 +246,7 @@
             <point key="canvasLocation" x="2606" y="81"/>
         </scene>
     </scenes>
+    <resources>
+        <image name="placeholder" width="140" height="140"/>
+    </resources>
 </document>

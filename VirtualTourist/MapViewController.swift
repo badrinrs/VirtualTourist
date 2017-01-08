@@ -10,7 +10,7 @@ import UIKit
 import MapKit
 import CoreData
 
-class MapViewController: UIViewController, CLLocationManagerDelegate, MKMapViewDelegate {
+class MapViewController: UIViewController {
 
     @IBOutlet weak var touristMap: MKMapView!
     
@@ -116,7 +116,9 @@ class MapViewController: UIViewController, CLLocationManagerDelegate, MKMapViewD
             })
         }
     }
-    
+}
+
+extension MapViewController: CLLocationManagerDelegate, MKMapViewDelegate {
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
         let identifier = "pin"
         if !(annotation is PinAnnotation) {
@@ -152,7 +154,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate, MKMapViewD
         return pinView
         
     }
-
+    
     
     func mapView(_ mapView: MKMapView, annotationView view: MKAnnotationView, calloutAccessoryControlTapped control: UIControl) {
         var pinConsidered: Pin
@@ -177,7 +179,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate, MKMapViewD
                 }
             }
         }
-    
+            
         else if(control == view.rightCalloutAccessoryView) {
             let latitude = view.annotation?.coordinate.latitude
             let longitude = view.annotation?.coordinate.longitude
@@ -185,7 +187,7 @@ class MapViewController: UIViewController, CLLocationManagerDelegate, MKMapViewD
                 if latitude == pin.latitude && longitude == pin.longitude {
                     pinConsidered = pin
                     index = pins.index(of: pin)!
-
+                    
                     let photoVC = self.storyboard?.instantiateViewController(withIdentifier: "photoMapVC") as! PhotoMapViewController
                     let annotation = PinAnnotation(title: ((view.annotation?.title)!)!, coordinate: (view.annotation?.coordinate)!);
                     photoVC.annotation = annotation
@@ -288,6 +290,5 @@ class MapViewController: UIViewController, CLLocationManagerDelegate, MKMapViewD
         
         return pinAnnotations
     }
-
 }
 

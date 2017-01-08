@@ -12,7 +12,7 @@ import MapKit
 import CoreData
 import SwiftSpinner
 
-class PhotoMapViewController: UIViewController, MKMapViewDelegate, UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout, UIGestureRecognizerDelegate {
+class PhotoMapViewController: UIViewController, UIGestureRecognizerDelegate {
     var annotation: PinAnnotation!
     var pin: Pin!
     
@@ -42,7 +42,8 @@ class PhotoMapViewController: UIViewController, MKMapViewDelegate, UICollectionV
     fileprivate var photos = [Photo]()
     
     fileprivate var context: NSManagedObjectContext!
-    
+    fileprivate var isFirstLoad = true
+    fileprivate var cellsConsidered = [Bool]()
     override func viewDidLoad() {
         super.viewDidLoad()
         self.navigationItem.backBarButtonItem?.title = "OK"
@@ -50,10 +51,7 @@ class PhotoMapViewController: UIViewController, MKMapViewDelegate, UICollectionV
         trashBarButton.isEnabled = false
         actionBarButton.isEnabled = false
         
-        guard let appDelegate = UIApplication.shared.delegate as? AppDelegate else {
-            return
-        }
-        
+        let appDelegate = UIApplication.shared.delegate as! AppDelegate
         context = appDelegate.persistentContainer.viewContext
         
         travelMap.addAnnotation(annotation)
@@ -80,7 +78,7 @@ class PhotoMapViewController: UIViewController, MKMapViewDelegate, UICollectionV
             NSFetchRequest<NSManagedObject>(entityName: "Photo")
         fetchRequest.predicate = NSPredicate(format: "pin == %@", pin)
         guard let photoList = try? context.fetch(fetchRequest) as! [Photo] else {
-            noCollectionsLabel.text = "No Photos Found! Please tap on New Collection Button below."
+//            noCollectionsLabel.text = "No Photos Found! Please tap on New Collection Button below."
             return
         }
         photos = photoList
@@ -171,52 +169,6 @@ class PhotoMapViewController: UIViewController, MKMapViewDelegate, UICollectionV
             }
         }
         
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        guard let count = searches.photos?.count else {
-            noCollectionsLabel.text = "No Photos Found! Please tap on New Collection Button below."
-            return 0
-        }
-        if(count==0) {
-            noCollectionsLabel.text = "No Photos Found! Please tap on New Collection Button below."
-        }
-        return count
-    }
-    
-    func numberOfSections(in collectionView: UICollectionView) -> Int {
-        return 1
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier,
-                                                      for: indexPath) as! PhotoCollectionCell
-        cell.backgroundColor = .white
-        cell.collectionImage.image = photoForIndexPath(indexPath: indexPath).image
-        return cell
-        
-    }
-    
-    func collectionView(_ collectionView: UICollectionView,
-                        layout collectionViewLayout: UICollectionViewLayout,
-                        sizeForItemAt indexPath: IndexPath) -> CGSize {
-        let paddingSpace = sectionInsets.left * (itemsPerRow + 1)
-        let availableWidth = view.frame.width - paddingSpace
-        let widthPerItem = availableWidth / itemsPerRow
-        
-        return CGSize(width: widthPerItem, height: widthPerItem)
-    }
-    
-    func collectionView(_ collectionView: UICollectionView,
-                        layout collectionViewLayout: UICollectionViewLayout,
-                        insetForSectionAt section: Int) -> UIEdgeInsets {
-        return sectionInsets
-    }
-    
-    func collectionView(_ collectionView: UICollectionView,
-                        layout collectionViewLayout: UICollectionViewLayout,
-                        minimumLineSpacingForSectionAt section: Int) -> CGFloat {
-        return sectionInsets.left
     }
     
     @IBAction func trashPhotos(_ sender: Any) {
@@ -323,8 +275,6 @@ class PhotoMapViewController: UIViewController, MKMapViewDelegate, UICollectionV
     }
     
     func discardSelections() {
-        
-        
         for cell in selectedCells {
             cell.isSelected = false
             cell.backgroundColor = UIColor.clear
@@ -356,17 +306,7 @@ class PhotoMapViewController: UIViewController, MKMapViewDelegate, UICollectionV
     func loadPhotos() {
         newCollectionButton.isEnabled = false
         isCollectionButtonTapped = true
-        
         var searches = FlickrSearchResults()
-        self.collectionView.reloadData()
-        for photo in self.photos {
-            context.delete(photo)
-            do {
-                try context.save()
-            } catch let error as NSError {
-                print("Could not delete. \(error), \(error.userInfo)")
-            }
-        }
         flickr.getPhotos(coordinate: annotation.coordinate) { (flickrSearchResults, status) in
             if(status=="Success") {
                 searches = flickrSearchResults!
@@ -379,6 +319,7 @@ class PhotoMapViewController: UIViewController, MKMapViewDelegate, UICollectionV
                     DispatchQueue.main.async {
                         self.noCollectionsLabel.text = ""
                         self.noCollectionsLabel.isHidden = true
+                        self.collectionView.reloadData()
                     }
                 } else {
                     self.showAlert(title: "Error", message: "Error Getting Photos. Please try again later.")
@@ -393,7 +334,6 @@ class PhotoMapViewController: UIViewController, MKMapViewDelegate, UICollectionV
                         count += 1;
                         if(status=="Success") {
                             let photo = dictionary?["flickrPhoto"] as! FlickrPhoto
-                            
                             DispatchQueue.main.async {
                                 flickrPhotos.append(photo)
                                 self.searches = FlickrSearchResults(photos: flickrPhotos)
@@ -415,7 +355,6 @@ class PhotoMapViewController: UIViewController, MKMapViewDelegate, UICollectionV
                     })
                 }
                 DispatchQueue.main.async {
-                    self.collectionView.reloadData()
                     self.newCollectionButton.isEnabled = true
                 }
             } else {
@@ -432,5 +371,60 @@ private extension PhotoMapViewController {
         return searches.photos![(indexPath as NSIndexPath).row]
     }
     
+    func photoForIndexPath(indexPath: IndexPath) -> UIImage {
+        guard let image = searches.photos?[(indexPath as NSIndexPath).row].image else {
+            return #imageLiteral(resourceName: "placeholder")
+        }
+        return image
+    }
+}
+
+extension PhotoMapViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        guard let count = searches.photos?.count else {
+            return 0
+        }
+        if(count==0 && !isFirstLoad) {
+            noCollectionsLabel.text = "No Photos Found! Please tap on New Collection Button below."
+        }
+        return count
+    }
+    
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
+        return 1
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier,
+                                                      for: indexPath) as! PhotoCollectionCell
+        cell.backgroundColor = .white
+        cell.activityIndicator.stopAnimating()
+        cell.collectionImage.image = photoForIndexPath(indexPath: indexPath).image
+        
+        return cell
+        
+    }
+    
+    func collectionView(_ collectionView: UICollectionView,
+                        layout collectionViewLayout: UICollectionViewLayout,
+                        sizeForItemAt indexPath: IndexPath) -> CGSize {
+        let paddingSpace = sectionInsets.left * (itemsPerRow + 1)
+        let availableWidth = view.frame.width - paddingSpace
+        let widthPerItem = availableWidth / itemsPerRow
+        
+        return CGSize(width: widthPerItem, height: widthPerItem)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView,
+                        layout collectionViewLayout: UICollectionViewLayout,
+                        insetForSectionAt section: Int) -> UIEdgeInsets {
+        return sectionInsets
+    }
+    
+    func collectionView(_ collectionView: UICollectionView,
+                        layout collectionViewLayout: UICollectionViewLayout,
+                        minimumLineSpacingForSectionAt section: Int) -> CGFloat {
+        return sectionInsets.left
+    }
 }
 
