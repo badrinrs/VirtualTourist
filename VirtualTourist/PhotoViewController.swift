@@ -9,7 +9,7 @@
 import Foundation
 import UIKit
 
-class PhotoViewController: UIViewController {
+class PhotoDetailViewController: UIViewController {
     
     @IBOutlet weak var collectionImage: UIImageView!
     @IBOutlet weak var imageTitle: UILabel!

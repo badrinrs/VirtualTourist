@@ -315,7 +315,7 @@ class PhotoMapViewController: UIViewController, MKMapViewDelegate, UICollectionV
         let p = gestureRecognizer.location(in: self.collectionView)
         
         if let indexPath: IndexPath = collectionView.indexPathForItem(at: p) {
-            let imageVC = self.storyboard?.instantiateViewController(withIdentifier: "imageVC") as! PhotoViewController
+            let imageVC = self.storyboard?.instantiateViewController(withIdentifier: "imageVC") as! PhotoDetailViewController
             imageVC.flickrPhoto = photoForIndexPath(indexPath: indexPath)
             self.navigationController?.pushViewController(imageVC, animated: true)
         }
