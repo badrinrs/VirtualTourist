@@ -33,17 +33,13 @@ class PhotoMapViewController: UIViewController, UIGestureRecognizerDelegate {
     fileprivate var selectedCells = [UICollectionViewCell]()
     fileprivate var selectedCellIndexes = [IndexPath]()
     
-    fileprivate var longPressGesture: UILongPressGestureRecognizer!
-    
-    fileprivate var singleTapGesture: UITapGestureRecognizer!
-    
     fileprivate var isCancelButtonAvailable: Bool = false
     
     fileprivate var photos = [Photo]()
     
     fileprivate var context: NSManagedObjectContext!
     fileprivate var isFirstLoad = true
-    fileprivate var cellsConsidered = [Bool]()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         self.navigationItem.backBarButtonItem?.title = "OK"
@@ -62,13 +58,13 @@ class PhotoMapViewController: UIViewController, UIGestureRecognizerDelegate {
         collectionView.allowsMultipleSelection = true
         collectionView.allowsSelection = true
         
-        longPressGesture = UILongPressGestureRecognizer(target: self, action: #selector(PhotoMapViewController.handleLongPress(gestureRecognizer:)))
+        let longPressGesture = UILongPressGestureRecognizer(target: self, action: #selector(PhotoMapViewController.handleLongPress(gestureRecognizer:)))
         longPressGesture.minimumPressDuration = 0.5
         longPressGesture.delegate = self
         longPressGesture.delaysTouchesBegan = true
         collectionView.addGestureRecognizer(longPressGesture)
         
-        singleTapGesture = UITapGestureRecognizer(target: self, action: #selector(PhotoMapViewController.handleTap(gestureRecognizer:)))
+        let singleTapGesture = UITapGestureRecognizer(target: self, action: #selector(PhotoMapViewController.handleTap(gestureRecognizer:)))
         singleTapGesture.delegate = self
         singleTapGesture.delaysTouchesBegan = true
         collectionView.addGestureRecognizer(singleTapGesture)
@@ -83,10 +79,15 @@ class PhotoMapViewController: UIViewController, UIGestureRecognizerDelegate {
             let flickrPhotos = createFlickrPhotos(photos: photos)
             searches = FlickrSearchResults(photos: flickrPhotos)
             collectionView.reloadData()
-        } else {
+        }
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        if(photos.count==0) {
             loadPhotos()
         }
-        
     }
     
     @IBAction func getNewCollection(_ sender: Any) {
