@@ -24,12 +24,12 @@
 		05257EDF1E1E035C00157B67 /* FlickrSearchResults.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05257EDE1E1E035C00157B67 /* FlickrSearchResults.swift */; };
 		05257EE21E1E039200157B67 /* FlickrPhoto.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05257EE11E1E039200157B67 /* FlickrPhoto.swift */; };
 		05257EE41E1E059D00157B67 /* PhotoMapViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05257EE31E1E059D00157B67 /* PhotoMapViewController.swift */; };
-		05257EE71E1E096800157B67 /* PhotoViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05257EE61E1E096800157B67 /* PhotoViewController.swift */; };
 		05257EE91E1F3ECE00157B67 /* PhotoCollectionCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05257EE81E1F3ECE00157B67 /* PhotoCollectionCell.swift */; };
 		05DC29711E2166B800E756C3 /* Photo+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05DC296D1E2166B800E756C3 /* Photo+CoreDataClass.swift */; };
 		05DC29721E2166B800E756C3 /* Photo+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05DC296E1E2166B800E756C3 /* Photo+CoreDataProperties.swift */; };
 		05DC29731E2166B800E756C3 /* Pin+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05DC296F1E2166B800E756C3 /* Pin+CoreDataClass.swift */; };
 		05DC29741E2166B800E756C3 /* Pin+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05DC29701E2166B800E756C3 /* Pin+CoreDataProperties.swift */; };
+		05E4B2561E2C1638000970E9 /* Array.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05E4B2551E2C1638000970E9 /* Array.swift */; };
 		ADFDB5A8638AD11620E08B2F /* Pods_VirtualTourist.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = B90AD33B47BDFB8BC8609BF4 /* Pods_VirtualTourist.framework */; };
 		B58617BF1B0D6E80EE163F41 /* Pods_VirtualTouristUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 8F55443F162CA9FE0F46072A /* Pods_VirtualTouristUITests.framework */; };
 		F5CEBF79F281D3D8651965E8 /* Pods_VirtualTouristTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1F110B724919310A0F496B49 /* Pods_VirtualTouristTests.framework */; };
@@ -76,13 +76,13 @@
 		05257EDE1E1E035C00157B67 /* FlickrSearchResults.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FlickrSearchResults.swift; sourceTree = "<group>"; };
 		05257EE11E1E039200157B67 /* FlickrPhoto.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = FlickrPhoto.swift; sourceTree = "<group>"; };
 		05257EE31E1E059D00157B67 /* PhotoMapViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoMapViewController.swift; sourceTree = "<group>"; };
-		05257EE61E1E096800157B67 /* PhotoViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoViewController.swift; sourceTree = "<group>"; };
 		05257EE81E1F3ECE00157B67 /* PhotoCollectionCell.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = PhotoCollectionCell.swift; sourceTree = "<group>"; };
 		05DC296D1E2166B800E756C3 /* Photo+CoreDataClass.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Photo+CoreDataClass.swift"; sourceTree = "<group>"; };
 		05DC296E1E2166B800E756C3 /* Photo+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Photo+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		05DC296F1E2166B800E756C3 /* Pin+CoreDataClass.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Pin+CoreDataClass.swift"; sourceTree = "<group>"; };
 		05DC29701E2166B800E756C3 /* Pin+CoreDataProperties.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = "Pin+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		05DC29761E21734200E756C3 /* VirtualTourist-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "VirtualTourist-Bridging-Header.h"; sourceTree = "<group>"; };
+		05E4B2551E2C1638000970E9 /* Array.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Array.swift; sourceTree = "<group>"; };
 		1F110B724919310A0F496B49 /* Pods_VirtualTouristTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_VirtualTouristTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		222053CD340434F3A3E04F67 /* Pods-VirtualTourist.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VirtualTourist.release.xcconfig"; path = "Pods/Target Support Files/Pods-VirtualTourist/Pods-VirtualTourist.release.xcconfig"; sourceTree = "<group>"; };
 		2CFC1C0E8456814E2F669BF5 /* Pods-VirtualTouristUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-VirtualTouristUITests.debug.xcconfig"; path = "Pods/Target Support Files/Pods-VirtualTouristUITests/Pods-VirtualTouristUITests.debug.xcconfig"; sourceTree = "<group>"; };
@@ -194,7 +194,6 @@
 				05257EE51E1E05E000157B67 /* cell */,
 				051AE48F1E1CAB7900AB4728 /* MapViewController.swift */,
 				05257EE31E1E059D00157B67 /* PhotoMapViewController.swift */,
-				05257EE61E1E096800157B67 /* PhotoViewController.swift */,
 			);
 			name = Controller;
 			sourceTree = "<group>";
@@ -204,6 +203,7 @@
 			children = (
 				051AE4C11E1CAD2000AB4728 /* ViewController.swift */,
 				051AE4C31E1CAD4300AB4728 /* Double.swift */,
+				05E4B2551E2C1638000970E9 /* Array.swift */,
 			);
 			name = Extension;
 			sourceTree = "<group>";
@@ -586,8 +586,8 @@
 				051AE48E1E1CAB7900AB4728 /* AppDelegate.swift in Sources */,
 				05DC29731E2166B800E756C3 /* Pin+CoreDataClass.swift in Sources */,
 				051AE4C21E1CAD2000AB4728 /* ViewController.swift in Sources */,
+				05E4B2561E2C1638000970E9 /* Array.swift in Sources */,
 				051AE4C41E1CAD4300AB4728 /* Double.swift in Sources */,
-				05257EE71E1E096800157B67 /* PhotoViewController.swift in Sources */,
 				05257EE91E1F3ECE00157B67 /* PhotoCollectionCell.swift in Sources */,
 				05257EC71E1DE3E600157B67 /* PinAnnotation.swift in Sources */,
 				051AE4961E1CAB7900AB4728 /* VirtualTourist.xcdatamodeld in Sources */,

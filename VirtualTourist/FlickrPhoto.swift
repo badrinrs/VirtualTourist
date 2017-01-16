@@ -40,6 +40,4 @@ class FlickrPhoto {
         self.secret = ""
         self.server = ""
     }
-    
-    
 }

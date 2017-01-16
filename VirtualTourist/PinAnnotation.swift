@@ -14,6 +14,8 @@ class PinAnnotation: NSObject, MKAnnotation {
     var title: String?
     var coordinate: CLLocationCoordinate2D
     var subtitle: String?
+    var searches: FlickrSearchResults?
+    var photos:[Photo]?
     
     init(title: String, coordinate: CLLocationCoordinate2D) {
         self.title = title

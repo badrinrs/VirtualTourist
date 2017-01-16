@@ -48,8 +48,11 @@ class  Flickr {
         let formatQueryItem = URLQueryItem(name: "format", value: constants.FORMAT)
         let noJsonCallBackQueryItem = URLQueryItem(name: "nojsoncallback", value: "\(constants.NO_JSON_CALL_BACK)")
         let pageQueryItem = URLQueryItem(name: "page", value: "\(Flickr.page+1)")
+        let perPageQueryItem = URLQueryItem(name: "per_page", value: "\(constants.PER_PAGE)")
         
-        let queryItems = [apiKeyQueryItem, radiusQueryItem, radiusUnitQueryItem, contentTypeQueryItem, methodQueryItem, latitudeQueryItem, longitudeQueryItem, formatQueryItem, noJsonCallBackQueryItem, pageQueryItem]
+        let queryItems = [apiKeyQueryItem, radiusQueryItem, radiusUnitQueryItem, contentTypeQueryItem, methodQueryItem,
+                          latitudeQueryItem, longitudeQueryItem, formatQueryItem, noJsonCallBackQueryItem,
+                          pageQueryItem, perPageQueryItem]
         urlComponents.queryItems = queryItems
         return urlComponents.url!
     }
@@ -98,7 +101,7 @@ class  Flickr {
                 dictionary = ["flickrPhoto": flickrPhoto]
                 completionHandler(dictionary, "Success")
             case .failure(let error):
-                print("Image download failure: \(error)")
+                print("Image download failure: \(error.localizedDescription), Url: \(url)")
                 completionHandler(dictionary, "Failure")
             }
         }

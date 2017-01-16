@@ -89,6 +89,12 @@ class MapViewController: UIViewController {
                     } else {
                         annotation = PinAnnotation(title: (pm?.locality)!, coordinate: newCoordinates)
                     }
+                    let flickr = Flickr()
+                    flickr.getPhotos(coordinate: annotation.coordinate) { (flickrSearchResults, status) in
+                        if(status == "Success") {
+                            annotation.searches = flickrSearchResults
+                        }
+                    }
                     self.touristMap.addAnnotation(annotation)
                     let pin = Pin(annotation: annotation, context: self.context)
                     do {
@@ -185,9 +191,10 @@ extension MapViewController: CLLocationManagerDelegate, MKMapViewDelegate {
                     index = pins.index(of: pin)!
                     
                     let photoVC = self.storyboard?.instantiateViewController(withIdentifier: "photoMapVC") as! PhotoMapViewController
-                    let annotation = PinAnnotation(title: ((view.annotation?.title)!)!, coordinate: (view.annotation?.coordinate)!);
+                    let annotation = view.annotation as! PinAnnotation
                     photoVC.annotation = annotation
                     photoVC.pin = pinConsidered
+                    photoVC.searches = annotation.searches
                     self.navigationController?.pushViewController(photoVC, animated: true)
                 }
             }

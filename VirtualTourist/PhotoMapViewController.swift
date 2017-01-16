@@ -15,6 +15,7 @@ import SwiftSpinner
 class PhotoMapViewController: UIViewController, UIGestureRecognizerDelegate {
     var annotation: PinAnnotation!
     var pin: Pin!
+    var searches: FlickrSearchResults!
     
     @IBOutlet weak var actionBarButton: UIBarButtonItem!
     @IBOutlet weak var trashBarButton: UIBarButtonItem!
@@ -27,7 +28,6 @@ class PhotoMapViewController: UIViewController, UIGestureRecognizerDelegate {
     fileprivate let reuseIdentifier = "collectionViewCell"
     fileprivate let flickr = Flickr()
     fileprivate let sectionInsets = UIEdgeInsets(top: 50.0, left: 20.0, bottom: 50.0, right: 20.0)
-    fileprivate var searches = FlickrSearchResults()
     
     fileprivate var isCollectionButtonTapped  = false;
     fileprivate var selectedCells = [UICollectionViewCell]()
@@ -58,16 +58,14 @@ class PhotoMapViewController: UIViewController, UIGestureRecognizerDelegate {
         collectionView.allowsMultipleSelection = true
         collectionView.allowsSelection = true
         
-        let longPressGesture = UILongPressGestureRecognizer(target: self, action: #selector(PhotoMapViewController.handleLongPress(gestureRecognizer:)))
-        longPressGesture.minimumPressDuration = 0.5
-        longPressGesture.delegate = self
-        longPressGesture.delaysTouchesBegan = true
-        collectionView.addGestureRecognizer(longPressGesture)
-        
-        let singleTapGesture = UITapGestureRecognizer(target: self, action: #selector(PhotoMapViewController.handleTap(gestureRecognizer:)))
-        singleTapGesture.delegate = self
-        singleTapGesture.delaysTouchesBegan = true
-        collectionView.addGestureRecognizer(singleTapGesture)
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(PhotoMapViewController.handleTap(gestureRecognizer:)))
+        tapGesture.delegate = self
+        tapGesture.delaysTouchesBegan = true
+        collectionView.addGestureRecognizer(tapGesture)
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
         let fetchRequest =
             NSFetchRequest<NSManagedObject>(entityName: "Photo")
         fetchRequest.predicate = NSPredicate(format: "pin == %@", pin)
@@ -75,18 +73,35 @@ class PhotoMapViewController: UIViewController, UIGestureRecognizerDelegate {
             return
         }
         photos = photoList
+        print("Photos Count \(photos.count)")
         if(photos.count > 0) {
             let flickrPhotos = createFlickrPhotos(photos: photos)
             searches = FlickrSearchResults(photos: flickrPhotos)
             collectionView.reloadData()
         }
-    }
-    
-    override func viewDidAppear(_ animated: Bool) {
-        super.viewDidAppear(animated)
         
         if(photos.count==0) {
-            loadPhotos()
+            if(searches == nil) {
+                self.showAlert(title: "Error", message: "No Photos Stored. Please tap New Collection Button below.")
+                self.noCollectionsLabel.text = "No Photos Found! Please tap on New Collection Button below."
+                return
+            } else {
+                guard let photos = searches.photos else {
+                    self.showAlert(title: "Error", message: "Error Getting Photos. Please try again later.")
+                    self.noCollectionsLabel.text = "No Photos Found! Please tap on New Collection Button below."
+                    return
+                }
+                if((photos.count) > 0) {
+                    DispatchQueue.main.async {
+                        self.noCollectionsLabel.text = ""
+                        self.noCollectionsLabel.isHidden = true
+                    }
+                } else {
+                    self.showAlert(title: "Error", message: "Error Getting Photos. Please try again later.")
+                    self.noCollectionsLabel.text = "No Photos Found! Please tap on New Collection Button below."
+                    return
+                }
+            }
         }
     }
     
@@ -94,8 +109,6 @@ class PhotoMapViewController: UIViewController, UIGestureRecognizerDelegate {
         photos = [Photo]()
         newCollectionButton.isEnabled = false
         isCollectionButtonTapped = true
-        
-        var searches = FlickrSearchResults()
         SwiftSpinner.show("Loading...", animated: true)
         self.collectionView.reloadData()
         for photo in self.photos {
@@ -108,51 +121,27 @@ class PhotoMapViewController: UIViewController, UIGestureRecognizerDelegate {
         }
         flickr.getPhotos(coordinate: annotation.coordinate) { (flickrSearchResults, status) in
             if(status=="Success") {
-                searches = flickrSearchResults!
-                guard let photos = searches.photos else {
-                    SwiftSpinner.hide()
-                    self.showAlert(title: "Error", message: "Error Getting Photos. Please try again later.")
-                    self.noCollectionsLabel.text = "No Photos Found! Please tap on New Collection Button below."
-                    return
-                }
-                if((photos.count) > 0) {
-                    DispatchQueue.main.async {
-                        self.noCollectionsLabel.text = ""
-                        self.noCollectionsLabel.isHidden = true
-                    }
-                } else {
-                    SwiftSpinner.hide()
-                    self.showAlert(title: "Error", message: "Error Getting Photos. Please try again later.")
-                    self.noCollectionsLabel.text = "No Photos Found! Please tap on New Collection Button below."
-                    return
-                }
+                self.searches = flickrSearchResults!
+                
                 var flickrPhotos = [FlickrPhoto]()
-                let photosCount = searches.photos?.count
-                var count = 0
-                for flickrPhoto in photos {
+                for flickrPhoto in self.searches.photos! {
                     self.flickr.getPhotosFromUrl(flickrPhoto: flickrPhoto, completionHandler: { (dictionary, status) in
-                        count += 1;
                         if(status=="Success") {
                             let photo = dictionary?["flickrPhoto"] as! FlickrPhoto
-                            
+                            let corePhoto = Photo(photo: photo, context: self.context)
+                            self.pin.addToPhoto(corePhoto)
+                            self.photos.append(corePhoto)
+                            do {
+                                try self.context.save()
+                            } catch let error as NSError {
+                                print("Could not insert. \(error), \(error.userInfo)")
+                            }
+
                             DispatchQueue.main.async {
                                 flickrPhotos.append(photo)
                                 self.searches = FlickrSearchResults(photos: flickrPhotos)
                                 self.collectionView.reloadData()
                             }
-                        }
-                        if(count == photosCount) {
-                            for photo in photos {
-                                let corePhoto = Photo(photo: photo, context: self.context)
-                                self.pin.addToPhoto(corePhoto)
-                                self.photos.append(corePhoto)
-                                do {
-                                    try self.context.save()
-                                } catch let error as NSError {
-                                    print("Could not insert. \(error), \(error.userInfo)")
-                                }
-                            }
-                            SwiftSpinner.hide()
                         }
                     })
                 }
@@ -170,19 +159,25 @@ class PhotoMapViewController: UIViewController, UIGestureRecognizerDelegate {
     }
     
     @IBAction func trashPhotos(_ sender: Any) {
+        var indexRows = [Int]()
+        var count = 0
         for indexPath in selectedCellIndexes {
-            searches.photos?.remove(at: indexPath.row)
-            context.delete(photos[indexPath.row])
+            indexRows.append(indexPath.row - count)
+            count += 1
+        }
+        for indexRow in indexRows {
+            searches.photos?.remove(at: indexRow)
+            let photo = photos.remove(at: indexRow)
+            context.delete(photo)
             do {
-                try context.save()
+            try context.save()
             } catch let error as NSError {
                 print("Could not delete. \(error), \(error.userInfo)")
                 showAlert(title: "Error", message: "Unable to Delete. Please Try Again Later!")
             }
         }
         self.collectionView.deleteItems(at: selectedCellIndexes)
-        
-        
+        selectedCellIndexes.removeAll()
         for barButtonItem in navigationItem.rightBarButtonItems! {
             if(barButtonItem.title == "Cancel") {
                 let index = navigationItem.rightBarButtonItems?.index(of: barButtonItem)
@@ -192,7 +187,7 @@ class PhotoMapViewController: UIViewController, UIGestureRecognizerDelegate {
         isCancelButtonAvailable = false
         actionBarButton.isEnabled = false
         trashBarButton.isEnabled = false
-        
+        self.collectionView.reloadData()
     }
     
     @IBAction func sharePhotos(_ sender: Any) {
@@ -226,7 +221,7 @@ class PhotoMapViewController: UIViewController, UIGestureRecognizerDelegate {
         
     }
     
-    func handleLongPress(gestureRecognizer: UIGestureRecognizer) {
+    func handleTap(gestureRecognizer: UIGestureRecognizer) {
         if (gestureRecognizer.state != UIGestureRecognizerState.ended){
             return
         }
@@ -258,20 +253,6 @@ class PhotoMapViewController: UIViewController, UIGestureRecognizerDelegate {
         }
     }
     
-    func handleTap(gestureRecognizer: UIGestureRecognizer) {
-        if(gestureRecognizer.state != .ended) {
-            return
-        }
-        let p = gestureRecognizer.location(in: self.collectionView)
-        
-        if let indexPath: IndexPath = collectionView.indexPathForItem(at: p) {
-            let imageVC = self.storyboard?.instantiateViewController(withIdentifier: "imageVC") as! PhotoDetailViewController
-            imageVC.flickrPhoto = photoForIndexPath(indexPath: indexPath)
-            self.navigationController?.pushViewController(imageVC, animated: true)
-        }
-        
-    }
-    
     func discardSelections() {
         for cell in selectedCells {
             cell.isSelected = false
@@ -301,67 +282,6 @@ class PhotoMapViewController: UIViewController, UIGestureRecognizerDelegate {
         return flickrPhotos
     }
     
-    func loadPhotos() {
-        newCollectionButton.isEnabled = false
-        isCollectionButtonTapped = true
-        var searches = FlickrSearchResults()
-        flickr.getPhotos(coordinate: annotation.coordinate) { (flickrSearchResults, status) in
-            if(status=="Success") {
-                searches = flickrSearchResults!
-                guard let photos = searches.photos else {
-                    self.showAlert(title: "Error", message: "Error Getting Photos. Please try again later.")
-                    self.noCollectionsLabel.text = "No Photos Found! Please tap on New Collection Button below."
-                    return
-                }
-                if((photos.count) > 0) {
-                    DispatchQueue.main.async {
-                        self.noCollectionsLabel.text = ""
-                        self.noCollectionsLabel.isHidden = true
-                        self.collectionView.reloadData()
-                    }
-                } else {
-                    self.showAlert(title: "Error", message: "Error Getting Photos. Please try again later.")
-                    self.noCollectionsLabel.text = "No Photos Found! Please tap on New Collection Button below."
-                    return
-                }
-                var flickrPhotos = [FlickrPhoto]()
-                let photosCount = searches.photos?.count
-                var count = 0
-                for flickrPhoto in photos {
-                    self.flickr.getPhotosFromUrl(flickrPhoto: flickrPhoto, completionHandler: { (dictionary, status) in
-                        count += 1;
-                        if(status=="Success") {
-                            let photo = dictionary?["flickrPhoto"] as! FlickrPhoto
-                            DispatchQueue.main.async {
-                                flickrPhotos.append(photo)
-                                self.searches = FlickrSearchResults(photos: flickrPhotos)
-                                self.collectionView.reloadData()
-                            }
-                        }
-                        if(count == photosCount) {
-                            for photo in photos {
-                                let corePhoto = Photo(photo: photo, context: self.context)
-                                self.pin.addToPhoto(corePhoto)
-                                self.photos.append(corePhoto)
-                                do {
-                                    try self.context.save()
-                                } catch let error as NSError {
-                                    print("Could not insert. \(error), \(error.userInfo)")
-                                }
-                            }
-                        }
-                    })
-                }
-                DispatchQueue.main.async {
-                    self.newCollectionButton.isEnabled = true
-                }
-            } else {
-                print(status)
-                self.showAlert(title: "Error", message: "Error Getting Photos. Please try again later.")
-                self.noCollectionsLabel.text = "No Photos Found! Please tap on New Collection Button below."
-            }
-        }
-    }
 }
 
 private extension PhotoMapViewController {
@@ -369,19 +289,31 @@ private extension PhotoMapViewController {
         return searches.photos![(indexPath as NSIndexPath).row]
     }
     
-    func photoForIndexPath(indexPath: IndexPath) -> UIImage {
-        guard let image = searches.photos?[(indexPath as NSIndexPath).row].image else {
-            return #imageLiteral(resourceName: "placeholder")
+    func imageForIndexPath(indexPath: IndexPath, completion: @escaping(_ image: UIImage, _ isPlaceholder: Bool) ->()) {
+
+        guard let imageHolder = searches.photos?[(indexPath as NSIndexPath).row].image else {
+            completion(#imageLiteral(resourceName: "placeholder"), true)
+            return
         }
-        return image
+        completion(imageHolder, false)
+        return
     }
 }
 
 extension PhotoMapViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        guard let count = searches.photos?.count else {
-            return 0
+        var count: Int
+        if(searches == nil) {
+            isFirstLoad = false
+            count = 0
+            return count
         }
+        guard let photos = searches.photos else {
+            isFirstLoad = false
+            count = 0
+            return count
+        }
+        count = photos.count
         if(count==0 && !isFirstLoad) {
             noCollectionsLabel.text = "No Photos Found! Please tap on New Collection Button below."
         }
@@ -392,8 +324,28 @@ extension PhotoMapViewController: UICollectionViewDelegate, UICollectionViewData
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseIdentifier,
                                                       for: indexPath) as! PhotoCollectionCell
         cell.backgroundColor = .white
-        cell.activityIndicator.stopAnimating()
-        cell.collectionImage.image = photoForIndexPath(indexPath: indexPath).image
+        if(photos.count>0) {
+            cell.activityIndicator.stopAnimating()
+            cell.collectionImage.image = UIImage(data: photos[indexPath.row].photo as! Data)
+        } else {
+            flickr.getPhotosFromUrl(flickrPhoto: (searches.photos?[(indexPath as NSIndexPath).row])!, completionHandler: { (dictionary, status) in
+                if(status=="Success") {
+                    let photo = dictionary?["flickrPhoto"] as! FlickrPhoto
+                    let corePhoto = Photo(photo: photo, context: self.context)
+                    self.pin.addToPhoto(corePhoto)
+                    self.photos.append(corePhoto)
+                    do {
+                        try self.context.save()
+                    } catch let error as NSError {
+                        print("Could not insert. \(error), \(error.userInfo)")
+                    }
+                    DispatchQueue.main.async {
+                        cell.activityIndicator.stopAnimating()
+                        cell.collectionImage.image = photo.image
+                    }
+                }
+            })
+        }
         
         return cell
         
